@@ -1,0 +1,29 @@
+
+# Private project-building guide
+AGENTS.md
+MASTER_PLAN.md
+docs/
+prompts/
+DEBUG_LOG.md
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Local IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
