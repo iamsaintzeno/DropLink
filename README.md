@@ -2,7 +2,9 @@
 
 Temporary PC-to-phone file sharing without accounts. Select files on a PC, get a QR code and short code, then open the transfer on a phone and download the files before expiry.
 
-> **Planning scaffold:** This repository documentation describes intended behavior. It does not mean the application has been implemented, deployed, or tested yet.
+> **Project status:** The product behavior below is the intended design. Only the
+> local Phase 1 scaffold is implemented and tested; transfer features, provider
+> integrations, and deployment are not implemented or verified.
 
 ## Product goals
 
@@ -15,10 +17,10 @@ Temporary PC-to-phone file sharing without accounts. Select files on a PC, get a
 
 ## Current status
 
-- [ ] Stack decision approved
-- [ ] Repository scaffold created
-- [ ] Local frontend starts
-- [ ] Local API starts
+- [x] Stack decision approved (2026-10-25)
+- [x] Repository scaffold created
+- [x] Local frontend starts
+- [x] Local API starts
 - [ ] Database migrations apply
 - [ ] Object storage integration works
 - [ ] Create transfer works end-to-end
@@ -27,51 +29,82 @@ Temporary PC-to-phone file sharing without accounts. Select files on a PC, get a
 - [ ] Deployment limits and costs reviewed
 - [ ] Production deployment manually verified
 
-## Documentation map
+Private planning and agent-guidance documents are maintained separately and are
+intentionally not included in this repository.
 
-- [`MASTER_PLAN.md`](MASTER_PLAN.md) — product, architecture, security, visual quality bar, agent ownership.
-- [`docs/DECISIONS.md`](docs/DECISIONS.md) — open decisions and evidence requirements.
-- [`docs/CONTRACTS.md`](docs/CONTRACTS.md) — proposed API and lifecycle contracts.
-- [`docs/PHASES.md`](docs/PHASES.md) — guided, phase-gated build sequence.
-- [`docs/VERIFICATION.md`](docs/VERIFICATION.md) — evidence rules, tests, manual end-to-end checks.
-- [`docs/SECURITY.md`](docs/SECURITY.md) — threat model and security checklist.
-- [`docs/DESIGN_BRIEF.md`](docs/DESIGN_BRIEF.md) — visual/product interaction direction.
-- [`prompts/`](prompts/) — reusable instructions for each agent.
+## Stack (Approved 2026-10-25)
 
-## Stack
+- **Frontend:** React + Vite + TypeScript (hosted on Render Static Site)
+- **Backend:** Python + FastAPI (hosted on Render Free Web Service)
+- **Database:** Supabase PostgreSQL Free (metadata)
+- **File Storage:** Private Supabase Storage (browser-direct uploads via signed URLs)
+- **Budget:** Strictly ₹0, no payment method required, no paid upgrades or add-ons
 
-Not finalized. The current candidate is React + Vite + TypeScript, FastAPI, PostgreSQL, and private S3-compatible object storage. See `docs/DECISIONS.md` before implementation. No hosting provider is assumed to be selected.
-
-## Intended repository layout
+## Repository layout
 
 ```text
 droplink/
 ├── README.md
-├── MASTER_PLAN.md
-├── AGENTS.md
+├── .gitignore
 ├── .env.example
-├── docs/
-│   ├── DECISIONS.md
-│   ├── CONTRACTS.md
-│   ├── PHASES.md
-│   ├── VERIFICATION.md
-│   ├── SECURITY.md
-│   └── DESIGN_BRIEF.md
-├── prompts/
-│   ├── CODEX.md
-│   ├── COPILOT.md
-│   ├── GEMINI.md
-│   ├── CLAUDE.md
-│   └── ANTIGRAVITY.md
-├── frontend/   # create during approved scaffold phase
-└── backend/    # create during approved scaffold phase
+├── frontend/   # React + Vite + TypeScript
+└── backend/    # Python + FastAPI
 ```
 
-The tree is a target layout, not a claim that these code directories already exist.
+## Local development
 
-## Proposed local workflow
+The Phase 1 scaffold uses no database, Supabase project, credentials, or deployment
+configuration. `/healthz` is a process-level liveness check only; it does not check
+database or storage readiness.
 
-Exact commands depend on the approved stack and generated project files. Once Phase 1 is approved, document the actual commands here. Do not paste placeholder commands and present them as verified.
+### Frontend
+
+Requires Node.js 20.19 or newer.
+
+```powershell
+cd frontend
+npm ci
+npm run dev
+```
+
+Run the frontend checks from `frontend/`:
+
+```powershell
+npm run lint
+npm run format:check
+npm test
+npm run build
+```
+
+### Backend
+
+Requires Python 3.11 or newer. From the repository root, create and activate a
+virtual environment, then install the project and its development tools:
+
+```powershell
+cd backend
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+Start the local API from `backend/`:
+
+```powershell
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+In another terminal, run the backend checks from `backend/`:
+
+```powershell
+python -m ruff check .
+python -m ruff format --check .
+python -m pytest
+```
+
+The liveness endpoint is `http://127.0.0.1:8000/healthz` and returns
+`{"status":"ok"}`.
 
 ## Security and privacy
 
@@ -87,4 +120,5 @@ Only one agent owns implementation files at a time. Every completed task must in
 5. known limitations,
 6. a clear stop for user review.
 
-See `AGENTS.md`.
+Before moving to another implementation phase, report changed files, actual
+verification results, and known limitations, then wait for review.
